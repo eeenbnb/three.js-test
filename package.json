@@ -1,0 +1,22 @@
+{
+  "name": "gl-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.js",
+  "scripts": {
+    "build": "node node_modules/webpack/bin/webpack.js",
+    "start": "node node_modules/webpack-dev-server/bin/webpack-dev-server.js"
+  },
+  "author": "eee_nbnb",
+  "license": "ISC",
+  "dependencies": {
+    "@types/three": "^0.84.22",
+    "awesome-typescript-loader": "^3.2.3",
+    "http-server": "^0.10.0",
+    "source-map-loader": "^0.2.1",
+    "three": "^0.87.1",
+    "typescript": "^2.5.2",
+    "webpack": "^3.6.0",
+    "webpack-dev-server": "^2.8.2"
+  }
+}
