@@ -8,21 +8,34 @@ window.addEventListener('DOMContentLoaded', () => {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color( 0xf0f0f0 );
 
-  const camera = new THREE.PerspectiveCamera(45, 800 / 600, 1, 10000);
-  camera.position.set(0, 0, 20);
+  const gridHelper = new THREE.GridHelper( 10, 10 );
+  scene.add( gridHelper );
+
+  var axes = new THREE.AxisHelper(20);
+  scene.add(axes);
+
+  const camera = new THREE.PerspectiveCamera(45, 800 / 600, 1, 100000);
+  camera.position.set(0, 1.7, -1.5);
+  camera.lookAt(new THREE.Vector3(0,1.7,0));
 
   const group = new THREE.Group();
   scene.add( group );
-
-  for(var i=0;i<1000;i++){
-    const geometry = new THREE.BoxGeometry(10, 10, 0);
-    const material = new THREE.MeshPhongMaterial({color: Math.random() * 0x808008 + 0x808080});
-    const box      = new THREE.Mesh(geometry, material);
-    box.position.x = Math.random() * 500 - 250;
-		box.position.y = Math.random() * 500 - 250;
-		box.position.z = Math.random() * 500 - 250;
-    group.add(box);
+  {
+    const geometry = new THREE.BoxGeometry(1000,0,1000);
+    const material = new THREE.MeshPhongMaterial({color: 0x00ff00});
+    const zimen      = new THREE.Mesh(geometry, material);
+    zimen.position.set(0,0,0);
+    scene.add(zimen);
   }
+
+  {
+    const geometry = new THREE.BoxGeometry(1,1,1);
+    const material = new THREE.MeshPhongMaterial({color: 0xffff00});
+    const hako      = new THREE.Mesh(geometry, material);
+    hako.position.set(0,0.5,0);
+    scene.add(hako);
+  }
+
 
   scene.add( new THREE.AmbientLight( 0xF0F0F0 ) );
 
@@ -31,14 +44,91 @@ window.addEventListener('DOMContentLoaded', () => {
   scene.add(light);
 
   const tick = (): void => {
+    playerMove(camera);
+
     requestAnimationFrame(tick);
     renderer.render(scene, camera);
+    //camera.position.x += 0.01;
+    //camera.lookAt(new THREE.Vector3(0,0,0));
   };
 
-  setInterval(()=>{
-    camera.rotateX(0.001);
-    camera.rotateY(0.001);
+  window.addEventListener('keydown',keyEventListener);
+  window.addEventListener('keyup',keyEventListener);
 
-  },1);
   tick();
 });
+var moveFlag:any = {
+  "z":0,
+  "x":0,
+  "rY":0,
+  "rXZ":0
+};
+var direction
+
+function playerMove(camera:THREE.PerspectiveCamera){
+  camera.position.z += moveFlag.z * 0.05 //* Math.cos(camera.rotation.y);
+  camera.position.x += moveFlag.x * 0.05 //* Math.sin(camera.rotation.y);
+  camera.rotateY(moveFlag.rY * 0.01);
+
+  //camera.rotateX(moveFlag.rXZ * 0.01);
+}
+
+function keyEventListener(event:KeyboardEvent){
+  console.log(event);
+    switch(event.type){
+      case 'keydown':
+        switch(event.key){
+          case "w":
+            moveFlag.z = 1;
+          break;
+          case "s":
+            moveFlag.z = -1;
+          break;
+
+          case "a":
+            moveFlag.x = 1;
+          break;
+          case "d":
+            moveFlag.x = -1;
+          break;
+
+          case "ArrowLeft":
+            moveFlag.rY = 1;
+          break;
+          case "ArrowRight":
+            moveFlag.rY = -1;
+          break;
+
+          case "ArrowUp":
+            moveFlag.rXZ = 1;
+          break;
+          case "ArrowDown":
+            moveFlag.rXZ = -1;
+          break;
+        }
+      break;
+      case 'keyup':
+      switch(event.key){
+        case "w":
+        case "s":
+          moveFlag.z = 0;
+        break;
+
+        case "a":
+        case "d":
+          moveFlag.x = 0;
+        break;
+
+        case "ArrowLeft":
+        case "ArrowRight":
+          moveFlag.rY = 0;
+        break;
+
+        case "ArrowUp":
+        case "ArrowDown":
+          moveFlag.rXZ = 0;
+        break;
+      }
+      break;
+    }
+}
