@@ -65,13 +65,21 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(1);
+
+
+/***/ }),
+/* 1 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(2);
 
-__webpack_require__(2)(__WEBPACK_IMPORTED_MODULE_0_three__);
+window.THREE = __WEBPACK_IMPORTED_MODULE_0_three__;
+__webpack_require__(3);
 var Setup = /** @class */ (function () {
     function Setup() {
         //renderer
@@ -123,22 +131,88 @@ window.addEventListener('DOMContentLoaded', function () {
         hako.position.set(0, 0.5, 0);
         scene.add(hako);
     }
-    var controls = new __WEBPACK_IMPORTED_MODULE_0_three__["FirstPersonControls"](camera, renderer.domElement);
-    controls.movementSpeed = 10;
-    controls.lookSpeed = 0.1;
-    controls.lon = -85;
-    var clock = new __WEBPACK_IMPORTED_MODULE_0_three__["Clock"]();
+    var controls = new window.THREE.PointerLockControls(camera);
+    controls.enabled = true;
+    scene.add(controls.getObject());
+    raycaster = new __WEBPACK_IMPORTED_MODULE_0_three__["Raycaster"](new __WEBPACK_IMPORTED_MODULE_0_three__["Vector3"](), new __WEBPACK_IMPORTED_MODULE_0_three__["Vector3"](0, -1, 0), 0, 10);
     var tick = function () {
-        controls.update(clock.getDelta());
+        raycaster.ray.origin.copy(controls.getObject().position);
+        raycaster.ray.origin.y -= 10;
+        var time = performance.now();
+        var delta = (time - prevTime) / 1000;
+        velocity.x -= velocity.x * 10.0 * delta;
+        velocity.z -= velocity.z * 10.0 * delta;
+        velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+        if (moveForward)
+            velocity.z -= 400.0 * delta;
+        if (moveBackward)
+            velocity.z += 400.0 * delta;
+        if (moveLeft)
+            velocity.x -= 400.0 * delta;
+        if (moveRight)
+            velocity.x += 400.0 * delta;
+        controls.getObject().translateX(velocity.x * delta);
+        //controls.getObject().translateY( velocity.y * delta );
+        controls.getObject().translateZ(velocity.z * delta);
         requestAnimationFrame(tick);
         renderer.render(scene, camera);
+        prevTime = time;
     };
     tick();
+    document.addEventListener('keydown', onKeyDown, false);
+    document.addEventListener('keyup', onKeyUp, false);
 });
+var prevTime = performance.now();
+var velocity = new __WEBPACK_IMPORTED_MODULE_0_three__["Vector3"]();
+var raycaster;
+var moveForward = false;
+var moveBackward = false;
+var moveLeft = false;
+var moveRight = false;
+var onKeyDown = function (event) {
+    switch (event.keyCode) {
+        case 38: // up
+        case 87:// w
+            moveForward = true;
+            break;
+        case 37: // left
+        case 65:// a
+            moveLeft = true;
+            break;
+        case 40: // down
+        case 83:// s
+            moveBackward = true;
+            break;
+        case 39: // right
+        case 68:// d
+            moveRight = true;
+            break;
+    }
+};
+var onKeyUp = function (event) {
+    switch (event.keyCode) {
+        case 38: // up
+        case 87:// w
+            moveForward = false;
+            break;
+        case 37: // left
+        case 65:// a
+            moveLeft = false;
+            break;
+        case 40: // down
+        case 83:// s
+            moveBackward = false;
+            break;
+        case 39: // right
+        case 68:// d
+            moveRight = false;
+            break;
+    }
+};
 
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -44376,294 +44450,79 @@ function CanvasRenderer() {
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports) {
-
-
 
 /**
  * @author mrdoob / http://mrdoob.com/
- * @author alteredq / http://alteredqualia.com/
- * @author paulirish / http://paulirish.com/
  */
 
+THREE.PointerLockControls = function ( camera ) {
 
-module.exports = function(THREE) {
-    
-    THREE.FirstPersonControls = function ( object, domElement ) {
+	var scope = this;
 
-        this.object = object;
-        this.target = new THREE.Vector3( 0, 0, 0 );
+	camera.rotation.set( 0, 0, 0 );
 
-        this.domElement = ( domElement !== undefined ) ? domElement : document;
+	var pitchObject = new THREE.Object3D();
+	pitchObject.add( camera );
 
-        this.enabled = true;
+	var yawObject = new THREE.Object3D();
+	yawObject.position.y = 10;
+	yawObject.add( pitchObject );
 
-        this.movementSpeed = 1.0;
-        this.lookSpeed = 0.005;
+	var PI_2 = Math.PI / 2;
 
-        this.lookVertical = true;
-        this.autoForward = false;
+	var onMouseMove = function ( event ) {
 
-        this.activeLook = true;
+		if ( scope.enabled === false ) return;
 
-        this.heightSpeed = false;
-        this.heightCoef = 1.0;
-        this.heightMin = 0.0;
-        this.heightMax = 1.0;
+		var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+		var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
-        this.constrainVertical = false;
-        this.verticalMin = 0;
-        this.verticalMax = Math.PI;
+		yawObject.rotation.y -= movementX * 0.002;
+		pitchObject.rotation.x -= movementY * 0.002;
 
-        this.autoSpeedFactor = 0.0;
+		pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
 
-        this.mouseX = 0;
-        this.mouseY = 0;
+	};
 
-        this.lat = 0;
-        this.lon = 0;
-        this.phi = 0;
-        this.theta = 0;
+	this.dispose = function() {
 
-        this.moveForward = false;
-        this.moveBackward = false;
-        this.moveLeft = false;
-        this.moveRight = false;
+		document.removeEventListener( 'mousemove', onMouseMove, false );
 
-        this.mouseDragOn = false;
+	};
 
-        this.viewHalfX = 0;
-        this.viewHalfY = 0;
+	document.addEventListener( 'mousemove', onMouseMove, false );
 
-        if ( this.domElement !== document ) {
+	this.enabled = false;
 
-            this.domElement.setAttribute( 'tabindex', -1 );
+	this.getObject = function () {
 
-        }
+		return yawObject;
 
-        //
+	};
 
-        this.handleResize = function () {
+	this.getDirection = function() {
 
-            if ( this.domElement === document ) {
+		// assumes the camera itself is not rotated
 
-                this.viewHalfX = window.innerWidth / 2;
-                this.viewHalfY = window.innerHeight / 2;
+		var direction = new THREE.Vector3( 0, 0, - 1 );
+		var rotation = new THREE.Euler( 0, 0, 0, "YXZ" );
 
-            } else {
+		return function( v ) {
 
-                this.viewHalfX = this.domElement.offsetWidth / 2;
-                this.viewHalfY = this.domElement.offsetHeight / 2;
+			rotation.set( pitchObject.rotation.x, yawObject.rotation.y, 0 );
 
-            }
+			v.copy( direction ).applyEuler( rotation );
 
-        };
+			return v;
 
-        this.onMouseDown = function ( event ) {
+		};
 
-            if ( this.domElement !== document ) {
-
-                this.domElement.focus();
-
-            }
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            if ( this.activeLook ) {
-
-                switch ( event.button ) {
-
-                    case 0: this.moveForward = true; break;
-                    case 2: this.moveBackward = true; break;
-
-                }
-
-            }
-
-            this.mouseDragOn = true;
-
-        };
-
-        this.onMouseUp = function ( event ) {
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            if ( this.activeLook ) {
-
-                switch ( event.button ) {
-
-                    case 0: this.moveForward = false; break;
-                    case 2: this.moveBackward = false; break;
-
-                }
-
-            }
-
-            this.mouseDragOn = false;
-
-        };
-
-        this.onMouseMove = function ( event ) {
-
-            if ( this.domElement === document ) {
-
-                this.mouseX = event.pageX - this.viewHalfX;
-                this.mouseY = event.pageY - this.viewHalfY;
-
-            } else {
-
-                this.mouseX = event.pageX - this.domElement.offsetLeft - this.viewHalfX;
-                this.mouseY = event.pageY - this.domElement.offsetTop - this.viewHalfY;
-
-            }
-
-        };
-
-        this.onKeyDown = function ( event ) {
-
-            //event.preventDefault();
-
-            switch ( event.keyCode ) {
-
-                case 38: /*up*/
-                case 87: /*W*/ this.moveForward = true; break;
-
-                case 37: /*left*/
-                case 65: /*A*/ this.moveLeft = true; break;
-
-                case 40: /*down*/
-                case 83: /*S*/ this.moveBackward = true; break;
-
-                case 39: /*right*/
-                case 68: /*D*/ this.moveRight = true; break;
-
-                case 82: /*R*/ this.moveUp = true; break;
-                case 70: /*F*/ this.moveDown = true; break;
-
-            }
-
-        };
-
-        this.onKeyUp = function ( event ) {
-
-            switch( event.keyCode ) {
-
-                case 38: /*up*/
-                case 87: /*W*/ this.moveForward = false; break;
-
-                case 37: /*left*/
-                case 65: /*A*/ this.moveLeft = false; break;
-
-                case 40: /*down*/
-                case 83: /*S*/ this.moveBackward = false; break;
-
-                case 39: /*right*/
-                case 68: /*D*/ this.moveRight = false; break;
-
-                case 82: /*R*/ this.moveUp = false; break;
-                case 70: /*F*/ this.moveDown = false; break;
-
-            }
-
-        };
-
-        this.update = function( delta ) {
-
-            if ( this.enabled === false ) return;
-
-            if ( this.heightSpeed ) {
-
-                var y = THREE.Math.clamp( this.object.position.y, this.heightMin, this.heightMax );
-                var heightDelta = y - this.heightMin;
-
-                this.autoSpeedFactor = delta * ( heightDelta * this.heightCoef );
-
-            } else {
-
-                this.autoSpeedFactor = 0.0;
-
-            }
-
-            var actualMoveSpeed = delta * this.movementSpeed;
-
-            if ( this.moveForward || ( this.autoForward && !this.moveBackward ) ) this.object.translateZ( - ( actualMoveSpeed + this.autoSpeedFactor ) );
-            if ( this.moveBackward ) this.object.translateZ( actualMoveSpeed );
-
-            if ( this.moveLeft ) this.object.translateX( - actualMoveSpeed );
-            if ( this.moveRight ) this.object.translateX( actualMoveSpeed );
-
-            if ( this.moveUp ) this.object.translateY( actualMoveSpeed );
-            if ( this.moveDown ) this.object.translateY( - actualMoveSpeed );
-
-            var actualLookSpeed = delta * this.lookSpeed;
-
-            if ( !this.activeLook ) {
-
-                actualLookSpeed = 0;
-
-            }
-
-            var verticalLookRatio = 1;
-
-            if ( this.constrainVertical ) {
-
-                verticalLookRatio = Math.PI / ( this.verticalMax - this.verticalMin );
-
-            }
-
-            this.lon += this.mouseX * actualLookSpeed;
-            if( this.lookVertical ) this.lat -= this.mouseY * actualLookSpeed * verticalLookRatio;
-
-            this.lat = Math.max( - 85, Math.min( 85, this.lat ) );
-            this.phi = THREE.Math.degToRad( 90 - this.lat );
-
-            this.theta = THREE.Math.degToRad( this.lon );
-
-            if ( this.constrainVertical ) {
-
-                this.phi = THREE.Math.mapLinear( this.phi, 0, Math.PI, this.verticalMin, this.verticalMax );
-
-            }
-
-            var targetPosition = this.target,
-                position = this.object.position;
-
-            targetPosition.x = position.x + 100 * Math.sin( this.phi ) * Math.cos( this.theta );
-            targetPosition.y = position.y + 100 * Math.cos( this.phi );
-            targetPosition.z = position.z + 100 * Math.sin( this.phi ) * Math.sin( this.theta );
-
-            this.object.lookAt( targetPosition );
-
-        };
-
-
-        this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
-
-        this.domElement.addEventListener( 'mousemove', bind( this, this.onMouseMove ), false );
-        this.domElement.addEventListener( 'mousedown', bind( this, this.onMouseDown ), false );
-        this.domElement.addEventListener( 'mouseup', bind( this, this.onMouseUp ), false );
-
-        window.addEventListener( 'keydown', bind( this, this.onKeyDown ), false );
-        window.addEventListener( 'keyup', bind( this, this.onKeyUp ), false );
-
-        function bind( scope, fn ) {
-
-            return function () {
-
-                fn.apply( scope, arguments );
-
-            };
-
-        };
-
-        this.handleResize();
-
-    };
+	}();
 
 };
+
 
 /***/ })
 /******/ ]);
