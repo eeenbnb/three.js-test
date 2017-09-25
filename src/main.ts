@@ -1,22 +1,48 @@
 import * as THREE from 'three';
+declare function require(x: string): any;
+require('three-first-person-controls')(THREE);
+
+class Setup{
+  renderer:THREE.WebGLRenderer;
+  scene:THREE.Scene;
+  camera:THREE.PerspectiveCamera;
+  constructor(){
+    //renderer
+    this.renderer = new THREE.WebGLRenderer();
+    this.renderer.setSize( window.innerWidth, window.innerHeight );
+    //scene
+    this.scene = new THREE.Scene();
+    this.scene.background = new THREE.Color( 0xf0f0f0 );
+    this.scene.add( new THREE.GridHelper( 1000, 1000 ) );
+    this.scene.add( new THREE.AxisHelper(20) );
+    //camera
+    this.camera = new THREE.PerspectiveCamera(45, 800 / 600, 1, 100000);
+    this.camera.position.set(0, 1.7, -1.5);
+    this.camera.lookAt(new THREE.Vector3(0,1.7,0));
+    this.scene.add(this.camera);
+    //light
+    this.scene.add( new THREE.AmbientLight( 0xF0F0F0 ) );
+
+  }
+  getRenderer():THREE.WebGLRenderer{
+    return this.renderer;
+  }
+  getScene():THREE.Scene{
+    return this.scene;
+  }
+  getCamera():THREE.PerspectiveCamera{
+    return this.camera;
+  }
+}
 
 window.addEventListener('DOMContentLoaded', () => {
 
-  const renderer = new THREE.WebGLRenderer();
-  renderer.setSize( window.innerWidth, window.innerHeight );
+  let setup = new Setup();
+  const renderer = setup.getRenderer();
+  const scene = setup.getScene();
+  const camera = setup.getCamera();
+
   document.body.appendChild(renderer.domElement);
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color( 0xf0f0f0 );
-
-  const gridHelper = new THREE.GridHelper( 10, 10 );
-  scene.add( gridHelper );
-
-  var axes = new THREE.AxisHelper(20);
-  scene.add(axes);
-
-  const camera = new THREE.PerspectiveCamera(45, 800 / 600, 1, 100000);
-  camera.position.set(0, 1.7, -1.5);
-  camera.lookAt(new THREE.Vector3(0,1.7,0));
 
   const group = new THREE.Group();
   scene.add( group );
@@ -36,99 +62,17 @@ window.addEventListener('DOMContentLoaded', () => {
     scene.add(hako);
   }
 
-
-  scene.add( new THREE.AmbientLight( 0xF0F0F0 ) );
-
-  const light = new THREE.DirectionalLight(0xffffff);
-  light.position.set(1, 1, 1);
-  scene.add(light);
+  const controls = new THREE.FirstPersonControls(camera,renderer.domElement);
+  controls.movementSpeed = 10;
+  controls.lookSpeed = 0.1;
+  controls.lon = -85;
+  const clock = new THREE.Clock();
 
   const tick = (): void => {
-    playerMove(camera);
-
+    controls.update(clock.getDelta());
     requestAnimationFrame(tick);
     renderer.render(scene, camera);
-    //camera.position.x += 0.01;
-    //camera.lookAt(new THREE.Vector3(0,0,0));
   };
-
-  window.addEventListener('keydown',keyEventListener);
-  window.addEventListener('keyup',keyEventListener);
 
   tick();
 });
-var moveFlag:any = {
-  "z":0,
-  "x":0,
-  "rY":0,
-  "rXZ":0
-};
-var direction
-
-function playerMove(camera:THREE.PerspectiveCamera){
-  camera.position.z += moveFlag.z * 0.05 //* Math.cos(camera.rotation.y);
-  camera.position.x += moveFlag.x * 0.05 //* Math.sin(camera.rotation.y);
-  camera.rotateY(moveFlag.rY * 0.01);
-
-  //camera.rotateX(moveFlag.rXZ * 0.01);
-}
-
-function keyEventListener(event:KeyboardEvent){
-  console.log(event);
-    switch(event.type){
-      case 'keydown':
-        switch(event.key){
-          case "w":
-            moveFlag.z = 1;
-          break;
-          case "s":
-            moveFlag.z = -1;
-          break;
-
-          case "a":
-            moveFlag.x = 1;
-          break;
-          case "d":
-            moveFlag.x = -1;
-          break;
-
-          case "ArrowLeft":
-            moveFlag.rY = 1;
-          break;
-          case "ArrowRight":
-            moveFlag.rY = -1;
-          break;
-
-          case "ArrowUp":
-            moveFlag.rXZ = 1;
-          break;
-          case "ArrowDown":
-            moveFlag.rXZ = -1;
-          break;
-        }
-      break;
-      case 'keyup':
-      switch(event.key){
-        case "w":
-        case "s":
-          moveFlag.z = 0;
-        break;
-
-        case "a":
-        case "d":
-          moveFlag.x = 0;
-        break;
-
-        case "ArrowLeft":
-        case "ArrowRight":
-          moveFlag.rY = 0;
-        break;
-
-        case "ArrowUp":
-        case "ArrowDown":
-          moveFlag.rXZ = 0;
-        break;
-      }
-      break;
-    }
-}
