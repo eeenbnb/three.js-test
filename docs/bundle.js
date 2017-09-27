@@ -60,159 +60,11 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(1);
-
-
-/***/ }),
-/* 1 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(2);
-
-window.THREE = __WEBPACK_IMPORTED_MODULE_0_three__;
-__webpack_require__(3);
-var Setup = /** @class */ (function () {
-    function Setup() {
-        //renderer
-        this.renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["WebGLRenderer"]();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        //scene
-        this.scene = new __WEBPACK_IMPORTED_MODULE_0_three__["Scene"]();
-        this.scene.background = new __WEBPACK_IMPORTED_MODULE_0_three__["Color"](0xf0f0f0);
-        this.scene.add(new __WEBPACK_IMPORTED_MODULE_0_three__["GridHelper"](1000, 1000));
-        this.scene.add(new __WEBPACK_IMPORTED_MODULE_0_three__["AxisHelper"](20));
-        //camera
-        this.camera = new __WEBPACK_IMPORTED_MODULE_0_three__["PerspectiveCamera"](45, 800 / 600, 1, 100000);
-        this.camera.position.set(0, 1.7, -1.5);
-        this.camera.lookAt(new __WEBPACK_IMPORTED_MODULE_0_three__["Vector3"](0, 1.7, 0));
-        this.scene.add(this.camera);
-        //light
-        this.scene.add(new __WEBPACK_IMPORTED_MODULE_0_three__["AmbientLight"](0xF0F0F0));
-    }
-    Setup.prototype.getRenderer = function () {
-        return this.renderer;
-    };
-    Setup.prototype.getScene = function () {
-        return this.scene;
-    };
-    Setup.prototype.getCamera = function () {
-        return this.camera;
-    };
-    return Setup;
-}());
-window.addEventListener('DOMContentLoaded', function () {
-    var setup = new Setup();
-    var renderer = setup.getRenderer();
-    var scene = setup.getScene();
-    var camera = setup.getCamera();
-    document.body.appendChild(renderer.domElement);
-    var group = new __WEBPACK_IMPORTED_MODULE_0_three__["Group"]();
-    scene.add(group);
-    {
-        var geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["BoxGeometry"](1000, 0, 1000);
-        var material = new __WEBPACK_IMPORTED_MODULE_0_three__["MeshPhongMaterial"]({ color: 0x00ff00 });
-        var zimen = new __WEBPACK_IMPORTED_MODULE_0_three__["Mesh"](geometry, material);
-        zimen.position.set(0, 0, 0);
-        scene.add(zimen);
-    }
-    {
-        var geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["BoxGeometry"](1, 1, 1);
-        var material = new __WEBPACK_IMPORTED_MODULE_0_three__["MeshPhongMaterial"]({ color: 0xffff00 });
-        var hako = new __WEBPACK_IMPORTED_MODULE_0_three__["Mesh"](geometry, material);
-        hako.position.set(0, 0.5, 0);
-        scene.add(hako);
-    }
-    var controls = new window.THREE.PointerLockControls(camera);
-    controls.enabled = true;
-    scene.add(controls.getObject());
-    raycaster = new __WEBPACK_IMPORTED_MODULE_0_three__["Raycaster"](new __WEBPACK_IMPORTED_MODULE_0_three__["Vector3"](), new __WEBPACK_IMPORTED_MODULE_0_three__["Vector3"](0, -1, 0), 0, 10);
-    var tick = function () {
-        raycaster.ray.origin.copy(controls.getObject().position);
-        raycaster.ray.origin.y -= 10;
-        var time = performance.now();
-        var delta = (time - prevTime) / 1000;
-        velocity.x -= velocity.x * 10.0 * delta;
-        velocity.z -= velocity.z * 10.0 * delta;
-        velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
-        if (moveForward)
-            velocity.z -= 400.0 * delta;
-        if (moveBackward)
-            velocity.z += 400.0 * delta;
-        if (moveLeft)
-            velocity.x -= 400.0 * delta;
-        if (moveRight)
-            velocity.x += 400.0 * delta;
-        controls.getObject().translateX(velocity.x * delta);
-        //controls.getObject().translateY( velocity.y * delta );
-        controls.getObject().translateZ(velocity.z * delta);
-        requestAnimationFrame(tick);
-        renderer.render(scene, camera);
-        prevTime = time;
-    };
-    tick();
-    document.addEventListener('keydown', onKeyDown, false);
-    document.addEventListener('keyup', onKeyUp, false);
-});
-var prevTime = performance.now();
-var velocity = new __WEBPACK_IMPORTED_MODULE_0_three__["Vector3"]();
-var raycaster;
-var moveForward = false;
-var moveBackward = false;
-var moveLeft = false;
-var moveRight = false;
-var onKeyDown = function (event) {
-    switch (event.keyCode) {
-        case 38: // up
-        case 87:// w
-            moveForward = true;
-            break;
-        case 37: // left
-        case 65:// a
-            moveLeft = true;
-            break;
-        case 40: // down
-        case 83:// s
-            moveBackward = true;
-            break;
-        case 39: // right
-        case 68:// d
-            moveRight = true;
-            break;
-    }
-};
-var onKeyUp = function (event) {
-    switch (event.keyCode) {
-        case 38: // up
-        case 87:// w
-            moveForward = false;
-            break;
-        case 37: // left
-        case 65:// a
-            moveLeft = false;
-            break;
-        case 40: // down
-        case 83:// s
-            moveBackward = false;
-            break;
-        case 39: // right
-        case 68:// d
-            moveRight = false;
-            break;
-    }
-};
-
-
-/***/ }),
-/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -44450,7 +44302,183 @@ function CanvasRenderer() {
 
 
 /***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(2);
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__setup__ = __webpack_require__(3);
+
+
+window.THREE = __WEBPACK_IMPORTED_MODULE_0_three__;
+__webpack_require__(4);
+window.addEventListener('DOMContentLoaded', function () {
+    var setup = new __WEBPACK_IMPORTED_MODULE_1__setup__["a" /* Setup */]();
+    var renderer = setup.getRenderer();
+    var scene = setup.getScene();
+    var camera = setup.getCamera();
+    document.getElementById('render-area').appendChild(renderer.domElement);
+    var group = new __WEBPACK_IMPORTED_MODULE_0_three__["Group"]();
+    var objects = [];
+    scene.add(group);
+    {
+        var geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["BoxGeometry"](1000, 0, 1000);
+        var material = new __WEBPACK_IMPORTED_MODULE_0_three__["MeshPhongMaterial"]({ color: 0x00ff00 });
+        var zimen = new __WEBPACK_IMPORTED_MODULE_0_three__["Mesh"](geometry, material);
+        zimen.position.set(0, 0, 0);
+        scene.add(zimen);
+        objects.push(zimen);
+    }
+    {
+        var geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["BoxGeometry"](1, 1, 1);
+        var material = new __WEBPACK_IMPORTED_MODULE_0_three__["MeshPhongMaterial"]({ color: 0xffff00 });
+        var hako = new __WEBPACK_IMPORTED_MODULE_0_three__["Mesh"](geometry, material);
+        hako.position.set(0, 0.5, 0);
+        scene.add(hako);
+        objects.push(hako);
+    }
+    var controls = new window.THREE.PointerLockControls(camera);
+    scene.add(controls.getObject());
+    raycaster = new __WEBPACK_IMPORTED_MODULE_0_three__["Raycaster"](new __WEBPACK_IMPORTED_MODULE_0_three__["Vector3"](), new __WEBPACK_IMPORTED_MODULE_0_three__["Vector3"](0, -1, 0), 0, 10);
+    var tick = function () {
+        raycaster.ray.origin.copy(controls.getObject().position);
+        raycaster.ray.origin.y -= 10;
+        var intersections = raycaster.intersectObjects(objects);
+        var isOnObject = intersections.length > 0;
+        var time = performance.now();
+        var delta = (time - prevTime) / 1000;
+        velocity.x -= velocity.x * 10.0 * delta;
+        velocity.z -= velocity.z * 10.0 * delta;
+        velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+        if (moveForward)
+            velocity.z -= 400.0 * delta;
+        if (moveBackward)
+            velocity.z += 400.0 * delta;
+        if (moveLeft)
+            velocity.x -= 400.0 * delta;
+        if (moveRight)
+            velocity.x += 400.0 * delta;
+        if (isOnObject === true) {
+            velocity.y = Math.max(0, velocity.y);
+        }
+        controls.getObject().translateX(velocity.x * delta);
+        controls.getObject().translateY(velocity.y * delta);
+        controls.getObject().translateZ(velocity.z * delta);
+        requestAnimationFrame(tick);
+        renderer.render(scene, camera);
+        prevTime = time;
+    };
+    tick();
+    document.addEventListener('keydown', onKeyDown, false);
+    document.addEventListener('keyup', onKeyUp, false);
+    document.getElementById("start").addEventListener('click', function (event) {
+        controls.enabled = true;
+        var element = document.body;
+        element.requestPointerLock = element.requestPointerLock;
+        element.requestPointerLock();
+        document.getElementById("start").style.cssText = "display:none";
+        document.getElementById('render-area').style.cssText = "display:block";
+    }, false);
+});
+var prevTime = performance.now();
+var velocity = new __WEBPACK_IMPORTED_MODULE_0_three__["Vector3"]();
+var raycaster;
+var moveForward = false;
+var moveBackward = false;
+var moveLeft = false;
+var moveRight = false;
+var onKeyDown = function (event) {
+    switch (event.keyCode) {
+        case 38: // up
+        case 87:// w
+            moveForward = true;
+            break;
+        case 37: // left
+        case 65:// a
+            moveLeft = true;
+            break;
+        case 40: // down
+        case 83:// s
+            moveBackward = true;
+            break;
+        case 39: // right
+        case 68:// d
+            moveRight = true;
+            break;
+    }
+};
+var onKeyUp = function (event) {
+    switch (event.keyCode) {
+        case 38: // up
+        case 87:// w
+            moveForward = false;
+            break;
+        case 37: // left
+        case 65:// a
+            moveLeft = false;
+            break;
+        case 40: // down
+        case 83:// s
+            moveBackward = false;
+            break;
+        case 39: // right
+        case 68:// d
+            moveRight = false;
+            break;
+    }
+};
+
+
+/***/ }),
 /* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return Setup; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_three__ = __webpack_require__(0);
+
+var Setup = /** @class */ (function () {
+    function Setup() {
+        //renderer
+        this.renderer = new __WEBPACK_IMPORTED_MODULE_0_three__["WebGLRenderer"]();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        //scene
+        this.scene = new __WEBPACK_IMPORTED_MODULE_0_three__["Scene"]();
+        this.scene.background = new __WEBPACK_IMPORTED_MODULE_0_three__["Color"](0xf0f0f0);
+        this.scene.add(new __WEBPACK_IMPORTED_MODULE_0_three__["GridHelper"](1000, 1000));
+        this.scene.add(new __WEBPACK_IMPORTED_MODULE_0_three__["AxisHelper"](20));
+        //camera
+        this.camera = new __WEBPACK_IMPORTED_MODULE_0_three__["PerspectiveCamera"](45, 800 / 600, 1, 100000);
+        this.camera.position.set(0, 1.7, -1.5);
+        this.camera.lookAt(new __WEBPACK_IMPORTED_MODULE_0_three__["Vector3"](0, 1.7, 0));
+        this.scene.add(this.camera);
+        //light
+        this.scene.add(new __WEBPACK_IMPORTED_MODULE_0_three__["AmbientLight"](0xF0F0F0));
+    }
+    Setup.prototype.getRenderer = function () {
+        return this.renderer;
+    };
+    Setup.prototype.getScene = function () {
+        return this.scene;
+    };
+    Setup.prototype.getCamera = function () {
+        return this.camera;
+    };
+    return Setup;
+}());
+
+
+
+/***/ }),
+/* 4 */
 /***/ (function(module, exports) {
 
 /**

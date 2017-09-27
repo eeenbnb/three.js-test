@@ -1,40 +1,8 @@
 import * as THREE from 'three';
+import { Setup } from './setup';
 declare function require(x: string): any;
 (window as any).THREE = THREE;
 require('../node_modules/three/examples/js/controls/PointerLockControls');
-
-class Setup{
-  renderer:THREE.WebGLRenderer;
-  scene:THREE.Scene;
-  camera:THREE.PerspectiveCamera;
-  constructor(){
-    //renderer
-    this.renderer = new THREE.WebGLRenderer();
-    this.renderer.setSize( window.innerWidth, window.innerHeight );
-    //scene
-    this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color( 0xf0f0f0 );
-    this.scene.add( new THREE.GridHelper( 1000, 1000 ) );
-    this.scene.add( new THREE.AxisHelper(20) );
-    //camera
-    this.camera = new THREE.PerspectiveCamera(45, 800 / 600, 1, 100000);
-    this.camera.position.set(0, 1.7, -1.5);
-    this.camera.lookAt(new THREE.Vector3(0,1.7,0));
-    this.scene.add(this.camera);
-    //light
-    this.scene.add( new THREE.AmbientLight( 0xF0F0F0 ) );
-
-  }
-  getRenderer():THREE.WebGLRenderer{
-    return this.renderer;
-  }
-  getScene():THREE.Scene{
-    return this.scene;
-  }
-  getCamera():THREE.PerspectiveCamera{
-    return this.camera;
-  }
-}
 
 window.addEventListener('DOMContentLoaded', () => {
 
@@ -43,9 +11,11 @@ window.addEventListener('DOMContentLoaded', () => {
   const scene = setup.getScene();
   const camera = setup.getCamera();
 
-  document.body.appendChild(renderer.domElement);
+  document.getElementById('render-area').appendChild(renderer.domElement);
+
 
   const group = new THREE.Group();
+  var objects = [];
   scene.add( group );
   {
     const geometry = new THREE.BoxGeometry(1000,0,1000);
@@ -53,6 +23,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const zimen      = new THREE.Mesh(geometry, material);
     zimen.position.set(0,0,0);
     scene.add(zimen);
+    objects.push(zimen);
   }
 
   {
@@ -61,15 +32,19 @@ window.addEventListener('DOMContentLoaded', () => {
     const hako      = new THREE.Mesh(geometry, material);
     hako.position.set(0,0.5,0);
     scene.add(hako);
+    objects.push(hako);
   }
   const controls = new (window as any).THREE.PointerLockControls(camera);
-  controls.enabled = true;
   scene.add( controls.getObject() );
 
   raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
   const tick = (): void => {
     raycaster.ray.origin.copy( controls.getObject().position );
     raycaster.ray.origin.y -= 10;
+
+    let intersections = raycaster.intersectObjects( objects );
+    let isOnObject = intersections.length > 0;
+
     var time = performance.now();
     var delta = ( time - prevTime ) / 1000;
     velocity.x -= velocity.x * 10.0 * delta;
@@ -80,8 +55,12 @@ window.addEventListener('DOMContentLoaded', () => {
     if ( moveLeft ) velocity.x -= 400.0 * delta;
     if ( moveRight ) velocity.x += 400.0 * delta;
 
+    if ( isOnObject === true ) {
+		    velocity.y = Math.max( 0, velocity.y );
+		}
+
     controls.getObject().translateX( velocity.x * delta );
-		//controls.getObject().translateY( velocity.y * delta );
+		controls.getObject().translateY( velocity.y * delta );
 		controls.getObject().translateZ( velocity.z * delta );
     requestAnimationFrame(tick);
     renderer.render(scene, camera);
@@ -91,6 +70,16 @@ window.addEventListener('DOMContentLoaded', () => {
   tick();
   document.addEventListener( 'keydown', onKeyDown, false );
 	document.addEventListener( 'keyup', onKeyUp, false );
+
+  document.getElementById("start").addEventListener( 'click', (event)=>{
+    controls.enabled = true;
+    const element:Element = document.body;
+    element.requestPointerLock = element.requestPointerLock;
+		element.requestPointerLock();
+    document.getElementById("start").style.cssText = "display:none"
+    document.getElementById('render-area').style.cssText = "display:block";
+	}, false );
+
 });
 
 var prevTime = performance.now();
