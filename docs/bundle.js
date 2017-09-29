@@ -44330,25 +44330,26 @@ window.addEventListener('DOMContentLoaded', function () {
     var objects = [];
     scene.add(group);
     {
-        var geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["BoxGeometry"](1000, 0, 1000);
-        var material = new __WEBPACK_IMPORTED_MODULE_0_three__["MeshPhongMaterial"]({ color: 0x00ff00 });
-        var zimen = new __WEBPACK_IMPORTED_MODULE_0_three__["Mesh"](geometry, material);
+        var geometry_1 = new __WEBPACK_IMPORTED_MODULE_0_three__["BoxGeometry"](1000, 0, 1000);
+        var material_1 = new __WEBPACK_IMPORTED_MODULE_0_three__["MeshPhongMaterial"]({ color: 0x00ff00 });
+        var zimen = new __WEBPACK_IMPORTED_MODULE_0_three__["Mesh"](geometry_1, material_1);
         zimen.position.set(0, 0, 0);
         scene.add(zimen);
         objects.push(zimen);
     }
-    {
-        var geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["BoxGeometry"](1, 1, 1);
-        var material = new __WEBPACK_IMPORTED_MODULE_0_three__["MeshPhongMaterial"]({ color: 0xffff00 });
-        var hako = new __WEBPACK_IMPORTED_MODULE_0_three__["Mesh"](geometry, material);
-        hako.position.set(0, 0.5, 0);
-        scene.add(hako);
-        objects.push(hako);
-    }
-    var controls = new window.THREE.PointerLockControls(camera);
+    var geometry = new __WEBPACK_IMPORTED_MODULE_0_three__["BoxGeometry"](1, 1, 1);
+    var material = new __WEBPACK_IMPORTED_MODULE_0_three__["MeshPhongMaterial"]({ color: 0xffff00 });
+    var hako = new __WEBPACK_IMPORTED_MODULE_0_three__["Mesh"](geometry, material);
+    hako.position.set(0, 0, 0);
+    scene.add(hako);
+    var controls = new window.THREE.PointerLockControls(hako);
     scene.add(controls.getObject());
     raycaster = new __WEBPACK_IMPORTED_MODULE_0_three__["Raycaster"](new __WEBPACK_IMPORTED_MODULE_0_three__["Vector3"](), new __WEBPACK_IMPORTED_MODULE_0_three__["Vector3"](0, -1, 0), 0, 10);
     var tick = function () {
+        camera.position.x = controls.getObject().position.x + 10;
+        camera.position.y = controls.getObject().position.y + 10;
+        camera.position.z = controls.getObject().position.z + 10;
+        camera.lookAt(controls.getObject().position);
         raycaster.ray.origin.copy(controls.getObject().position);
         raycaster.ray.origin.y -= 10;
         var intersections = raycaster.intersectObjects(objects);
@@ -44359,18 +44360,18 @@ window.addEventListener('DOMContentLoaded', function () {
         velocity.z -= velocity.z * 10.0 * delta;
         velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
         if (moveForward)
-            velocity.z -= 400.0 * delta;
+            velocity.z -= 100.0 * delta;
         if (moveBackward)
-            velocity.z += 400.0 * delta;
+            velocity.z += 100.0 * delta;
         if (moveLeft)
-            velocity.x -= 400.0 * delta;
+            velocity.x -= 100.0 * delta;
         if (moveRight)
-            velocity.x += 400.0 * delta;
+            velocity.x += 100.0 * delta;
         if (isOnObject === true) {
             velocity.y = Math.max(0, velocity.y);
         }
         controls.getObject().translateX(velocity.x * delta);
-        controls.getObject().translateY(velocity.y * delta);
+        //controls.getObject().translateY( velocity.y * delta );
         controls.getObject().translateZ(velocity.z * delta);
         requestAnimationFrame(tick);
         renderer.render(scene, camera);

@@ -26,19 +26,23 @@ window.addEventListener('DOMContentLoaded', () => {
     objects.push(zimen);
   }
 
-  {
+
     const geometry = new THREE.BoxGeometry(1,1,1);
     const material = new THREE.MeshPhongMaterial({color: 0xffff00});
     const hako      = new THREE.Mesh(geometry, material);
-    hako.position.set(0,0.5,0);
+    hako.position.set(0,0,0);
     scene.add(hako);
-    objects.push(hako);
-  }
-  const controls = new (window as any).THREE.PointerLockControls(camera);
+
+  const controls = new (window as any).THREE.PointerLockControls(hako);
   scene.add( controls.getObject() );
 
   raycaster = new THREE.Raycaster( new THREE.Vector3(), new THREE.Vector3( 0, - 1, 0 ), 0, 10 );
   const tick = (): void => {
+    camera.position.x = controls.getObject().position.x + 10;
+    camera.position.y = controls.getObject().position.y + 10;
+    camera.position.z = controls.getObject().position.z + 10;
+    camera.lookAt(controls.getObject().position);
+
     raycaster.ray.origin.copy( controls.getObject().position );
     raycaster.ray.origin.y -= 10;
 
@@ -50,17 +54,17 @@ window.addEventListener('DOMContentLoaded', () => {
     velocity.x -= velocity.x * 10.0 * delta;
     velocity.z -= velocity.z * 10.0 * delta;
     velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
-    if ( moveForward ) velocity.z -= 400.0 * delta;
-    if ( moveBackward ) velocity.z += 400.0 * delta;
-    if ( moveLeft ) velocity.x -= 400.0 * delta;
-    if ( moveRight ) velocity.x += 400.0 * delta;
+    if ( moveForward ) velocity.z -= 100.0 * delta;
+    if ( moveBackward ) velocity.z += 100.0 * delta;
+    if ( moveLeft ) velocity.x -= 100.0 * delta;
+    if ( moveRight ) velocity.x += 100.0 * delta;
 
     if ( isOnObject === true ) {
 		    velocity.y = Math.max( 0, velocity.y );
 		}
 
     controls.getObject().translateX( velocity.x * delta );
-		controls.getObject().translateY( velocity.y * delta );
+		//controls.getObject().translateY( velocity.y * delta );
 		controls.getObject().translateZ( velocity.z * delta );
     requestAnimationFrame(tick);
     renderer.render(scene, camera);
